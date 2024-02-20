@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.corundumstudio.socketio.SocketIOServer;
 import com.example.finalPSP2324.model.LocalidadGetResponse;
 import com.example.finalPSP2324.model.LocalidadPostRequest;
 import com.example.finalPSP2324.model.ProvinciaGetResponse;
@@ -33,8 +34,17 @@ public class LocalidadesController {
 	LocalidadesRepository localidadesRepository;
 	
 
+    private final SocketIOServer socketIoServer;
+	
+
 	@Autowired
 	ProvinciasRepository provinciasRepository;
+	
+    @Autowired
+    public LocalidadesController(SocketIOServer socketIoServer) {
+        this.socketIoServer = socketIoServer;
+        // this.fcm = fcm;
+    }
 	
 	@GetMapping("/localidades")
 	public ResponseEntity<List<LocalidadGetResponse>> getLocalidades() {
@@ -114,6 +124,8 @@ public class LocalidadesController {
 			);
 			response.setProvincia(responseProvincia);
 			
+			socketIoServer.getBroadcastOperations().sendEvent("LOCALIDAD_CREATED", response);
+			
 			return new ResponseEntity<LocalidadGetResponse> (response, HttpStatus.CREATED);
 		} catch (Exception e) {
 
@@ -127,6 +139,7 @@ public class LocalidadesController {
 
 		try {
 			localidadesRepository.deleteById(id);
+			socketIoServer.getBroadcastOperations().sendEvent("LOCALIDAD_DELETED", id);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} catch  (EmptyResultDataAccessException e) {
 			throw new ResponseStatusException(HttpStatus.NO_CONTENT, "Localidad no encontrada");
