@@ -65,9 +65,6 @@ public class LocalidadesController {
 				() -> new ResponseStatusException(HttpStatus.NO_CONTENT, "Localidad no encontrada")
 		);
 		
-		// TODO
-		// hacer expand de department y devolver la lista de empleados si se solicita.
-		
 		LocalidadGetResponse response = new LocalidadGetResponse(
 			localidad.getIdLocalidad(),
 			localidad.getNombre(),
@@ -87,7 +84,6 @@ public class LocalidadesController {
 		return new ResponseEntity<LocalidadGetResponse> (response, HttpStatus.OK);
 	}
 	
-	
 
 	@PostMapping("/localidades")
 	public ResponseEntity<LocalidadGetResponse> createLocalidad(@RequestBody LocalidadPostRequest localidadPostRequest) {
@@ -95,7 +91,6 @@ public class LocalidadesController {
 				() -> new ResponseStatusException(HttpStatus.CONFLICT, "Provincia no encontrada")
 		);
 		
-		// Integer idLocalidad, String nombre, Integer poblacion, Integer nProvincia
 		Localidad localidad = new Localidad(null, localidadPostRequest.getNombre(), localidadPostRequest.getPoblacion(), localidadPostRequest.getnProvincia());
 		localidad.setProvincia(provincia);
 		
@@ -119,21 +114,20 @@ public class LocalidadesController {
 			);
 			response.setProvincia(responseProvincia);
 			
-			return new ResponseEntity<LocalidadGetResponse> (response, HttpStatus.OK);
+			return new ResponseEntity<LocalidadGetResponse> (response, HttpStatus.CREATED);
 		} catch (Exception e) {
 
 			return new ResponseEntity<LocalidadGetResponse> (HttpStatus.CONFLICT);
 		}
 		
-		
 	}
 	
 	@DeleteMapping("/localidades/{id}")
-	public ResponseEntity<?> deleteLocalidadById(@PathVariable("id") Integer id) {
+	public ResponseEntity<Void> deleteLocalidadById(@PathVariable("id") Integer id) {
 
 		try {
 			localidadesRepository.deleteById(id);
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} catch  (EmptyResultDataAccessException e) {
 			throw new ResponseStatusException(HttpStatus.NO_CONTENT, "Localidad no encontrada");
 		}
